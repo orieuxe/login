@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake system login</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #f26f95, #6769f0, #2dc4ea);
+      background-size: cover;
+      color: white;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    body.success-mode {
+      animation: victoryBackdrop 1.2s ease-out both;
+    }
+
+    .mac-menu-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+      align-items: center;
+      justify-content: space-between;
+      height: 28px;
+      padding: 0 14px;
+      background: rgba(248, 248, 248, 0.72);
+      color: rgba(20, 20, 20, 0.88);
+      font-size: 12px;
+      font-weight: 500;
+      backdrop-filter: blur(18px) saturate(1.3);
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .menu-left,
+    .menu-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      white-space: nowrap;
+    }
+
+    .menu-left {
+      gap: 14px;
+    }
+
+    .apple-logo {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .menu-item-strong {
+      font-weight: 700;
+    }
+
+    .menu-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .wifi-icon {
+      font-size: 13px;
+      transform: rotate(180deg);
+    }
+
+    .desktop-icons {
+      display: none;
+      position: fixed;
+      top: 48px;
+      right: 28px;
+      z-index: 0;
+      gap: 24px;
+      justify-items: center;
+    }
+
+    .desktop-icon {
+      display: grid;
+      width: 74px;
+      justify-items: center;
+      gap: 5px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.15;
+      text-align: center;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+    }
+
+    body.desktop-mode .mac-menu-bar {
+      display: flex;
+    }
+
+    body.desktop-mode .desktop-icons {
+      display: grid;
+    }
+
+    .desktop-icon-art {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 3px 12px rgba(20, 24, 70, 0.24);
+      color: #4d65b4;
+      font-size: 25px;
+      text-shadow: none;
+    }
+
+    .desktop-icon:nth-child(2) .desktop-icon-art {
+      background: linear-gradient(145deg, #ffd978, #ee8d45);
+    }
+
+    .desktop-icon:nth-child(3) .desktop-icon-art {
+      background: linear-gradient(145deg, #c5edff, #6586e8);
+    }
+
+    .desktop-icon:nth-child(4) .desktop-icon-art {
+      background: rgba(235, 240, 255, 0.9);
+      filter: grayscale(0.2);
+    }
+
+.login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.5s ease;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-bottom: 15px;
+    }
+
+    .avatar svg {
+      width: 70px;
+      height: 70px;
+      fill: rgba(255, 255, 255, 0.8);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Nom d'utilisateur */
+    .username {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="password"] {
+      width: 200px;
+      padding: 10px 35px 10px 15px;
+      font-size: 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: white;
+      outline: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s, border 0.3s;
+    }
+
+    input[type="password"]::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input[type="password"]:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .submit-btn {
+      position: absolute;
+      right: 8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .submit-btn svg {
+      width: 12px;
+      height: 12px;
+      fill: white;
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% {
+        transform: translate3d(-2px, 0, 0);
+      }
+      20%, 80% {
+        transform: translate3d(4px, 0, 0);
+      }
+      30%, 50%, 70% {
+        transform: translate3d(-6px, 0, 0);
+      }
+      40%, 60% {
+        transform: translate3d(6px, 0, 0);
+      }
+    }
+
+    .success-message {
+      display: none;
+      position: relative;
+      z-index: 3;
+      min-width: min(360px, 80vw);
+      padding: 32px 38px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 28px;
+      background: rgba(20, 22, 72, 0.28);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 25px 70px rgba(22, 19, 90, 0.35);
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 0;
+      color: white;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.5px;
+      text-align: center;
+      animation: successPop 0.7s cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    .compose-window {
+      display: none;
+      position: relative;
+      z-index: 3;
+      width: min(680px, calc(100vw - 32px));
+      color: #202124;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 24px 80px rgba(16, 24, 40, 0.35);
+      overflow: hidden;
+      animation: composePop 0.55s cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    .compose-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      color: #fff;
+      background: #404040;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .compose-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gmail-mark {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: #ea4335;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .simulation-badge {
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .compose-body {
+      padding: 22px 26px 18px;
+    }
+
+    .simulation-notice {
+      margin-bottom: 18px;
+      padding: 10px 12px;
+      border: 1px solid #fbbc04;
+      border-radius: 8px;
+      background: #fff8e1;
+      color: #5f4300;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .mail-field {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #e8eaed;
+      font-size: 14px;
+    }
+
+    .mail-label {
+      color: #5f6368;
+    }
+
+    .mail-value {
+      color: #202124;
+      overflow-wrap: anywhere;
+    }
+
+    .mail-content {
+      min-height: 142px;
+      padding: 20px 0;
+      color: #202124;
+      font-size: 15px;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .compose-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 8px;
+    }
+
+    .send-button {
+      padding: 10px 24px;
+      border: 0;
+      border-radius: 5px;
+      background: #1a73e8;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(26, 115, 232, 0.25);
+    }
+
+    .send-button:hover,
+    .send-button:focus-visible {
+      background: #1765cc;
+    }
+
+    .send-button:focus-visible {
+      outline: 3px solid rgba(26, 115, 232, 0.35);
+      outline-offset: 2px;
+    }
+
+    .send-button-highlight {
+      animation: sendButtonPulse 1.1s ease-in-out infinite;
+    }
+
+    @keyframes sendButtonPulse {
+      50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 0 7px rgba(26, 115, 232, 0.16), 0 4px 14px rgba(26, 115, 232, 0.5);
+      }
+    }
+
+    @keyframes composePop {
+      0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .success-message::before,
+    .success-message::after {
+      content: "";
+      position: absolute;
+      inset: -22px;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      border-radius: 34px;
+      pointer-events: none;
+      animation: successRing 1.4s ease-out both;
+    }
+
+    .success-message::after {
+      inset: -48px;
+      border-color: rgba(255, 209, 102, 0.35);
+      animation-delay: 0.18s;
+    }
+
+    .success-icon {
+      display: grid;
+      place-items: center;
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fff5b8, #ffd166 55%, #ff9f1c);
+      color: #5b3b00;
+      font-size: 40px;
+      box-shadow: 0 0 0 8px rgba(255, 209, 102, 0.2), 0 0 45px rgba(255, 209, 102, 0.8);
+      animation: iconBounce 0.8s 0.15s cubic-bezier(.2, 1.6, .4, 1) both;
+    }
+
+    .success-kicker {
+      display: block;
+      margin-bottom: 7px;
+      color: #ffe69a;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .success-subtitle {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    @keyframes successPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes iconBounce {
+      0% { opacity: 0; transform: scale(0) rotate(-25deg); }
+      70% { transform: scale(1.15) rotate(8deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    @keyframes successRing {
+      0% { opacity: 0.9; transform: scale(0.7); }
+      100% { opacity: 0; transform: scale(1.25); }
+    }
+
+    @keyframes victoryBackdrop {
+      0%, 100% { filter: saturate(1); }
+      18% { filter: saturate(1.8) brightness(1.35); }
+    }
+
+    .victory-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(circle at center, rgba(255,255,255,.95), rgba(255,209,102,.25) 18%, transparent 52%);
+      opacity: 0;
+    }
+
+    body.success-mode .victory-flash {
+      animation: flash 1s ease-out both;
+    }
+
+    @keyframes flash {
+      0% { opacity: 0; transform: scale(0.3); }
+      12% { opacity: 1; }
+      100% { opacity: 0; transform: scale(2.2); }
+    }
+
+    .victory-particle {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 4;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      background: var(--color);
+      box-shadow: 0 0 10px var(--color);
+      pointer-events: none;
+      animation: firework var(--duration) cubic-bezier(.1, .8, .2, 1) var(--delay) both;
+    }
+
+    @keyframes firework {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      12% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0.15);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: 50%;
+      left: var(--start-x, 50%);
+      width: var(--size);
+      height: calc(var(--size) * 1.7);
+      background: var(--color, #fff);
+      opacity: 0;
+      border-radius: var(--radius, 2px);
+      transform-origin: center;
+      animation: confettiPop var(--duration) ease-out forwards;
+      animation-delay: var(--delay);
+    }
+
+    .confetti-layer.is-sweeping .confetti-piece {
+      left: calc(var(--start-x) - 120px);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        left 0.25s ease-in var(--sweep-delay),
+        opacity 0.25s ease-in var(--sweep-delay),
+        visibility 0s linear calc(var(--sweep-delay) + 0.25s);
+    }
+
+    .broom-sweep {
+      position: fixed;
+      left: 100%;
+      bottom: 8px;
+      z-index: 11;
+      opacity: 0;
+      font-size: 84px;
+      line-height: 1;
+      pointer-events: none;
+      transform-origin: 50% 100%;
+    }
+
+    .broom-sweep.is-sweeping {
+      opacity: 1;
+      animation: broomSweep 2.6s ease-in-out both;
+    }
+
+    @keyframes broomSweep {
+      0% {
+        opacity: 0;
+        transform: translateX(24px) rotate(-18deg);
+      }
+      8% {
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(-50vw) rotate(12deg);
+      }
+      92% {
+        opacity: 1;
+        transform: translateX(calc(-100vw - 100% - 24px)) rotate(-18deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(calc(-100vw - 100% - 24px)) rotate(0);
+      }
+    }
+
+    @keyframes confettiPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -16px) rotate(0deg) scale(0.5);
+      }
+      10% {
+        opacity: 1;
+      }
+      45% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--mid-x)), var(--mid-y)) rotate(var(--mid-rotation)) scale(1);
+      }
+      78% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--dx)), var(--landing-y)) rotate(var(--rotation)) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--dx)), var(--landing-y)) rotate(var(--rotation)) scale(0.9);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mac-menu-bar" aria-hidden="true">
+  <div class="menu-left">
+    <span class="apple-logo"></span>
+    <span class="menu-item-strong">Finder</span>
+    <span>File</span>
+    <span>Edit</span>
+    <span>View</span>
+    <span>Go</span>
+    <span>Window</span>
+    <span>Help</span>
+  </div>
+  <div class="menu-right">
+    <span class="menu-status">🪫</span>
+    <span class="menu-status wifi-icon">🛜</span>
+    <span class="menu-status">🔍</span>
+    <span id="menuDateTime">--</span>
+  </div>
+</div>
+
+<div class="desktop-icons" aria-hidden="true">
+  <div class="desktop-icon">
+    <span class="desktop-icon-art">💾</span>
+    <span>Macintosh HD</span>
+  </div>
+  <div class="desktop-icon">
+    <span class="desktop-icon-art">📁</span>
+    <span>Documents</span>
+  </div>
+  <div class="desktop-icon">
+    <span class="desktop-icon-art">📷</span>
+    <span>Photos</span>
+  </div>
+  <div class="desktop-icon">
+    <span class="desktop-icon-art">🗑️</span>
+    <span>Trash</span>
+  </div>
+</div>
+
+<div class="victory-flash" aria-hidden="true"></div>
+<div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+<div class="broom-sweep" id="broomSweep" aria-hidden="true">🧹</div>
+
+<div class="login-container" id="loginContainer">
+  <div class="avatar">
+    <img src="jeanmimi-avatar.jpg" alt="Jean-Michel Lovelace">
+  </div>
+
+  <div class="username">Jean-Michel Lovelace</div>
+  <div style="font-size: 13px; opacity: 0.7; margin-top: -15px; margin-bottom: 20px;">
+    Lead Social Engineering Bait
+  </div>
+
+  <div class="password-wrapper" id="pwdWrapper">
+    <input type="password" id="passwordInput" placeholder="Enter password">
+    <button class="submit-btn" onclick="verifyPassword()">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M5 13h11.17l-4.88 4.88c-.39.39-.39 1.03 0 1.42.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41l-6.58-6.6a.996.996 0 10-1.41 1.41L16.17 11H5c-.55 0-1 .45-1 1s.45 1 1 1z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="success-message" id="successMessage" role="status" aria-live="polite">
+  <div class="success-icon" aria-hidden="true">✓</div>
+  <span class="success-kicker">MISSION ACCOMPLIE</span>
+  <span>Challenge terminé !</span>
+  <span class="success-subtitle">🥐 Profitez bien du petit-déj ! 🥐</span>
+</div>
+
+<section class="compose-window" id="composeWindow" aria-labelledby="composeTitle">
+  <div class="compose-header">
+    <div class="compose-brand">
+      <span class="gmail-mark" aria-hidden="true">M</span>
+      <span id="composeTitle">Gmail — nouveau message</span>
+    </div>
+    <span class="simulation-badge">SIMULATION</span>
+  </div>
+  <div class="compose-body">
+    <div class="simulation-notice" role="note">
+      Ceci est un faux e-mail de sensibilisation. Le bouton « Send » ne transmet aucun message.
+    </div>
+    <div class="mail-field">
+      <span class="mail-label">From</span>
+      <span class="mail-value">Jean-Michel Lovelace &lt;jean-michel.lovelace@dekathlon.net&gt;</span>
+    </div>
+    <div class="mail-field">
+      <span class="mail-label">To</span>
+      <span class="mail-value">fake_core_team@dekathlon.net</span>
+    </div>
+    <div class="mail-field">
+      <span class="mail-label">Subject</span>
+      <span class="mail-value">Petit-déjeuner le 27 octobre à 9h</span>
+    </div>
+    <div class="mail-content" id="mailContent">Bonjour à toutes et à tous,
+
+Je vous invite à un petit-déjeuner le 27 octobre prochain à 9h.
+
+Au plaisir de vous retrouver,
+Jean-Michel</div>
+    <div class="compose-actions">
+      <button class="send-button" id="sendButton" type="button">Send</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // You won't find the password here, it's hashed for security reasons :)
+  const TARGET_HASH = "0992b4e4c7c77233a2d0a5b17b852bab8bb2973747bb9327d2d28cdd9a12fc70";
+  const KONAMI_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  let konamiProgress = 0;
+  let confettiSequenceActive = false;
+
+  function updateMenuClock() {
+    const formattedDate = new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date());
+
+    document.getElementById('menuDateTime').textContent = formattedDate;
+  }
+
+  updateMenuClock();
+  setInterval(updateMenuClock, 60000);
+
+  async function sha256(str) {
+    const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function typeEmail() {
+    const content = document.getElementById('mailContent');
+    const sendButton = document.getElementById('sendButton');
+    const message = content.textContent;
+    content.setAttribute('aria-label', message);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      sendButton.classList.add('send-button-highlight');
+      return;
+    }
+
+    content.textContent = '';
+    let position = 0;
+
+    function typeNextCharacter() {
+      content.textContent = message.slice(0, ++position);
+
+      if (position < message.length) {
+        setTimeout(typeNextCharacter, 24);
+      } else {
+        sendButton.classList.add('send-button-highlight');
+      }
+    }
+
+    typeNextCharacter();
+  }
+
+  function launchConfetti() {
+    if (confettiSequenceActive) {
+      return;
+    }
+
+    confettiSequenceActive = true;
+    const layer = document.getElementById('confettiLayer');
+    const broom = document.getElementById('broomSweep');
+    const colors = ['#ff4d6d', '#ffd166', '#06d6a0', '#4cc9f0', '#a78bfa', '#f72585', '#80ed99'];
+
+    layer.replaceChildren();
+
+    for (let i = 0; i < 240; i++) {
+      const piece = document.createElement('span');
+      const size = 4 + Math.random() * 10;
+      const delay = Math.random() * 0.65;
+      const duration = 1.8 + Math.random() * 1.8;
+      const rotation = Math.random() * 360;
+      const dx = (Math.random() - 0.5) * 520;
+      const startX = Math.random() * window.innerWidth;
+      const finalX = Math.max(0, Math.min(window.innerWidth, startX + dx));
+      const sweepDelay = 0.18 + (1 - finalX / window.innerWidth) * 1.95;
+      const startTop = window.innerHeight * (0.1 + Math.random() * 0.35);
+      const landingY = window.innerHeight - startTop - (12 + Math.random() * 90);
+
+      piece.className = 'confetti-piece';
+      piece.style.setProperty('--size', `${size}px`);
+      piece.style.setProperty('--duration', `${duration}s`);
+      piece.style.setProperty('--delay', `${delay}s`);
+      piece.style.setProperty('--dx', `${dx}px`);
+      piece.style.setProperty('--mid-x', `${dx * 0.42}px`);
+      piece.style.setProperty('--landing-y', `${landingY}px`);
+      piece.style.setProperty('--mid-y', `${landingY * 0.55}px`);
+      piece.style.setProperty('--rotation', `${rotation}deg`);
+      piece.style.setProperty('--mid-rotation', `${rotation * 0.42}deg`);
+      piece.style.setProperty('--radius', Math.random() > 0.7 ? '50%' : '2px');
+      piece.style.setProperty('--start-x', `${startX}px`);
+      piece.style.setProperty('--sweep-delay', `${sweepDelay}s`);
+      piece.style.background = colors[i % colors.length];
+      piece.style.top = `${startTop}px`;
+
+      layer.appendChild(piece);
+    }
+
+    function launchFireworks() {
+      const colors = ['#fff5b8', '#ffd166', '#ff4d6d', '#06d6a0', '#4cc9f0', '#f72585'];
+      const particleCount = 70;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('span');
+        const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.2;
+        const distance = 130 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * 0.38;
+
+        particle.className = 'victory-particle';
+        particle.style.setProperty('--size', `${3 + Math.random() * 6}px`);
+        particle.style.setProperty('--color', colors[i % colors.length]);
+        particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+        particle.style.setProperty('--delay', `${Math.random() * 0.16}s`);
+        particle.style.setProperty('--duration', `${1.1 + Math.random() * 0.8}s`);
+        document.body.appendChild(particle);
+      }
+
+      setTimeout(() => {
+        document.querySelectorAll('.victory-particle').forEach((particle) => particle.remove());
+      }, 2300);
+    }
+
+    broom.addEventListener('animationend', () => {
+      layer.replaceChildren();
+      layer.classList.remove('is-sweeping');
+      broom.classList.remove('is-sweeping');
+      confettiSequenceActive = false;
+    }, { once: true });
+
+    setTimeout(() => {
+      broom.classList.add('is-sweeping');
+      layer.classList.add('is-sweeping');
+    }, 4800);
+  }
+
+  document.getElementById("passwordInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      verifyPassword();
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (
+      document.body.classList.contains('desktop-mode') ||
+      document.body.classList.contains('success-mode') ||
+      event.target?.closest?.('input, textarea, select, [contenteditable="true"]')
+    ) {
+      konamiProgress = 0;
+      return;
+    }
+
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
+    if (key === KONAMI_CODE[konamiProgress]) {
+      konamiProgress += 1;
+
+      if (konamiProgress === KONAMI_CODE.length) {
+        konamiProgress = 0;
+        launchConfetti();
+      }
+    } else {
+      konamiProgress = key === KONAMI_CODE[0] ? 1 : 0;
+    }
+  });
+
+  document.getElementById('sendButton').addEventListener('click', function () {
+    document.getElementById('composeWindow').style.display = 'none';
+    document.body.classList.remove('desktop-mode');
+    document.body.classList.add('success-mode');
+    const successEl = document.getElementById('successMessage');
+    successEl.style.display = 'block';
+    launchConfetti();
+    launchFireworks();
+  });
+
+  async function verifyPassword() {
+    const inputEl = document.getElementById('passwordInput');
+    const value = inputEl.value;
+    const hashedValue = await sha256(value);
+
+    const wrapper = document.getElementById('pwdWrapper');
+
+    wrapper.classList.remove('shake');
+    void wrapper.offsetWidth;
+
+    if (hashedValue === TARGET_HASH) {
+      document.body.classList.add('desktop-mode');
+      document.getElementById('loginContainer').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('composeWindow').style.display = 'block';
+        typeEmail();
+      }, 500);
+    } else {
+      inputEl.value = "";
+      wrapper.classList.add('shake');
+    }
+  }
+</script>
+
+</body>
+</html>

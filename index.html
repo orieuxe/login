@@ -461,6 +461,37 @@
       opacity: 0.85;
     }
 
+    .next-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      padding: 13px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-decoration: none;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .next-step:hover {
+      background: rgba(255, 255, 255, 0.34);
+      transform: translateY(-2px);
+    }
+
+    /* Locker link, under the password field on the first screen */
+    .casier-link {
+      margin-top: 26px;
+      padding: 10px 18px;
+      font-size: 13px;
+    }
+
     @keyframes successPop {
       0% {
         opacity: 0;
@@ -694,6 +725,8 @@
       </svg>
     </button>
   </div>
+
+  <a class="next-step casier-link" href="casier.html">🔐 Casier de Jean-Michel Lovelace</a>
 </div>
 
 <div class="success-message" id="successMessage" role="status" aria-live="polite">
